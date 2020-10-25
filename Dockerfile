@@ -1,6 +1,4 @@
-FROM alpine:3.6 as alpine
-
-RUN apk add -U --no-cache ca-certificates
+FROM debian:buster
 
 EXPOSE 3000
 
