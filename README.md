@@ -30,6 +30,7 @@ Inside the configured `GIT_REPO` is a file, `index.json`. It's a simple map from
 ```json
 {
   "barakmich/rotocopter": "some/other/path.yaml"
-}```
+}
+```
 
 And you're done!
