@@ -3,7 +3,6 @@ package roto
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
 
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/config"
@@ -111,24 +110,12 @@ func (r *rotoPlugin) Find(ctx context.Context, req *config.Request) (*drone.Conf
 	}
 	v, ok := r.index[req.Repo.Slug]
 	if !ok {
-		logrus.Info(req.Repo.Slug, " doesn't exist in index, skipping")
+		logrus.Info(req.Repo.Slug, " doesn't exist in index, trying default")
+		if v, ok := r.index["default"]; ok {
+			return getDroneYaml(v, wt, req)
+		}
+		logrus.Info("no default set, skipping")
 		return nil, nil
 	}
-	yamlFile, err := wt.Filesystem.Open(v)
-	if err != nil {
-		logrus.Error("can't open filename", v)
-		return nil, err
-	}
-	data, err := ioutil.ReadAll(yamlFile)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := &drone.Config{
-		Data: string(data),
-	}
-	// return nil and Drone will fallback to
-	// the standard behavior for getting the
-	// configuration file.
-	return conf, nil
+	return getDroneYaml(v, wt, req)
 }
