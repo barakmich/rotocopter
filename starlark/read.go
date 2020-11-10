@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/drone/drone-go/plugin/config"
 	"github.com/go-git/go-git/v5"
+	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 )
 
@@ -24,7 +24,7 @@ func splitFuncPath(funcpath string) (string, string, error) {
 func ExecNamedFunc(funcpath string, wt *git.Worktree, req config.Request, extras map[string]string) (starlark.Value, error) {
 	filename, funcname, err := splitFuncPath(funcpath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	thread := &starlark.Thread{
@@ -45,7 +45,7 @@ func ExecNamedFunc(funcpath string, wt *git.Worktree, req config.Request, extras
 
 	}
 
-	f, ok = v.(*starlark.Function)
+	f, ok := v.(*starlark.Function)
 	if !ok {
 		return nil, fmt.Errorf("%s in %s is not a Function", funcname, filename)
 	}

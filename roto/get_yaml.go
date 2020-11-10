@@ -1,6 +1,7 @@
 package roto
 
 import (
+	"errors"
 	"io/ioutil"
 	"strings"
 
@@ -49,5 +50,6 @@ func getDroneYamlFromFile(v string, wt *git.Worktree) (*drone.Config, error) {
 }
 
 func getDroneYamlFromStarlark(v string, wt *git.Worktree, req *config.Request) (*drone.Config, error) {
+	return nil, errors.New("unimplemented")
 
 }

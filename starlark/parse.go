@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/go-git/go-git/v5"
+	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 )
 
@@ -15,7 +15,7 @@ func parse(filename string, wt *git.Worktree, thread *starlark.Thread) (starlark
 		logrus.Error("can't open filename", filename)
 		return nil, err
 	}
-	data, err := ioutil.ReadFile(file)
+	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
@@ -55,10 +55,10 @@ func makeLoad(wt *git.Worktree) func(thread *starlark.Thread, module string) (st
 			thread := &starlark.Thread{Name: "exec " + module, Load: thread.Load}
 			file, err := wt.Filesystem.Open(module)
 			if err != nil {
-				logrus.Error("can't open filename", filename)
+				logrus.Error("can't open module", module)
 				return nil, err
 			}
-			data, err := ioutil.ReadFile(file)
+			data, err := ioutil.ReadAll(file)
 			if err != nil {
 				return nil, err
 			}
