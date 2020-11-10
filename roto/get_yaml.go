@@ -1,10 +1,10 @@
 package roto
 
 import (
-	"errors"
 	"io/ioutil"
 	"strings"
 
+	"github.com/barakmich/rotocopter/starlark"
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/config"
 	"github.com/go-git/go-git/v5"
@@ -50,6 +50,16 @@ func getDroneYamlFromFile(v string, wt *git.Worktree) (*drone.Config, error) {
 }
 
 func getDroneYamlFromStarlark(v string, wt *git.Worktree, req *config.Request) (*drone.Config, error) {
-	return nil, errors.New("unimplemented")
-
+	starlarkval, err := starlark.ExecNamedFunc(v, wt, *req, nil)
+	if err != nil {
+		return nil, err
+	}
+	buf, err := starlark.ValToYaml(starlarkval)
+	if err != nil {
+		return nil, err
+	}
+	conf := &drone.Config{
+		Data: buf.String(),
+	}
+	return conf, nil
 }

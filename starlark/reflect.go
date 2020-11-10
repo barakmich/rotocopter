@@ -12,7 +12,9 @@ func convertRequest(req config.Request, extra map[string]string) starlark.Value 
 	out := starlark.NewDict(3)
 	out.SetKey(starlark.String("build"), buildStarlarkVal(req.Build))
 	out.SetKey(starlark.String("repo"), buildStarlarkVal(req.Repo))
-	out.SetKey(starlark.String("config"), buildStringDict(extra))
+	if extra != nil {
+		out.SetKey(starlark.String("config"), buildStringDict(extra))
+	}
 	return out
 }
 

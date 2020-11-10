@@ -30,3 +30,25 @@ func TestLoadGit(t *testing.T) {
 	}
 	t.Log(config.Data)
 }
+
+func TestLoadStarlark(t *testing.T) {
+	conf := roto.Config{
+		GitYamlRepo: "testdata/",
+	}
+	req := config.Request{
+		Repo: drone.Repo{
+			Slug: "barak/teststarlark",
+		},
+	}
+
+	r := roto.New(conf)
+	config, err := r.Find(context.Background(), &req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(config.Data), "kind: docker") {
+		t.Fatal("data doesn't contain echo command")
+	}
+	t.Log(config.Data)
+
+}
