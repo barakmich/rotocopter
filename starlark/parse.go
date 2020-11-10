@@ -4,11 +4,18 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/Sirupsen/logrus"
+	"github.com/go-git/go-git/v5"
 	"go.starlark.net/starlark"
 )
 
-func parse(filename string, thread *starlark.Thread) (starlark.StringDict, error) {
-	data, err := ioutil.ReadFile(filename)
+func parse(filename string, wt *git.Worktree, thread *starlark.Thread) (starlark.StringDict, error) {
+	file, err := wt.Filesystem.Open(filename)
+	if err != nil {
+		logrus.Error("can't open filename", filename)
+		return nil, err
+	}
+	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +32,7 @@ func args(v ...starlark.Value) starlark.Tuple {
 }
 
 // https://github.com/google/starlark-go/blob/4eb76950c5f02ec5bcfd3ca898231a6543942fd9/repl/repl.go#L175
-func makeLoad() func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
+func makeLoad(wt *git.Worktree) func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
 	type entry struct {
 		globals starlark.StringDict
 		err     error
@@ -46,7 +53,17 @@ func makeLoad() func(thread *starlark.Thread, module string) (starlark.StringDic
 
 			// Load it.
 			thread := &starlark.Thread{Name: "exec " + module, Load: thread.Load}
-			globals, err := starlark.ExecFile(thread, module, nil, nil)
+			file, err := wt.Filesystem.Open(module)
+			if err != nil {
+				logrus.Error("can't open filename", filename)
+				return nil, err
+			}
+			data, err := ioutil.ReadFile(file)
+			if err != nil {
+				return nil, err
+			}
+
+			globals, err := starlark.ExecFile(thread, module, data, nil)
 			e = &entry{globals, err}
 
 			// Update the cache.

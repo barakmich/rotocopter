@@ -48,6 +48,6 @@ func getDroneYamlFromFile(v string, wt *git.Worktree) (*drone.Config, error) {
 	return conf, nil
 }
 
-func getDroneYamlFromStarlark(v string, wt *git.Worktree, req *config.Request) {
+func getDroneYamlFromStarlark(v string, wt *git.Worktree, req *config.Request) (*drone.Config, error) {
 
 }

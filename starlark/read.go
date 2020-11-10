@@ -4,27 +4,38 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/drone/drone-go/plugin/config"
+	"github.com/go-git/go-git/v5"
 	"go.starlark.net/starlark"
 )
 
-func ExecNamedFunc(f *f, req config.Request, extras map[string]string) (starlark.Value, error) {
+func splitFuncPath(funcpath string) (string, string, error) {
 	s := strings.SplitN(funcpath, ":", 2)
 	if len(s) != 2 {
-		return nil, fmt.Errorf("Ill-formed filename:function string: %s", funcpath)
+		return "", "", fmt.Errorf("Ill-formed filename:function string: %s", funcpath)
 	}
 	filename := s[0]
 	funcname := s[1]
 
+	return filename, funcname, nil
+}
+
+func ExecNamedFunc(funcpath string, wt *git.Worktree, req config.Request, extras map[string]string) (starlark.Value, error) {
+	filename, funcname, err := splitFuncPath(funcpath)
+	if err != nil {
+		return err
+	}
+
 	thread := &starlark.Thread{
 		Name: "rotocopter",
 		Print: func(_ *starlark.Thread, msg string) {
-			fmt.Println(msg)
+			logrus.Info(msg)
 		},
-		Load: makeLoad(),
+		Load: makeLoad(wt),
 	}
 
-	globals, err := parse(filename, thread)
+	globals, err := parse(filename, wt, thread)
 	if err != nil {
 		return nil, err
 	}
