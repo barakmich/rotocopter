@@ -26,10 +26,11 @@ DRONE_YAML_GIT_USER="" (optional: Username to access the YAML repo)
 DRONE_YAML_GIT_PASSWORD="" (optional: Password to access the YAML repo)
 ```
 
-Inside the configured `GIT_REPO` is a file, `index.json`. It's a simple map from repo slug to yaml file:
+Inside the configured `GIT_REPO` is a file, `index.json`. It's a simple map from repo slug to yaml file. Alternatively, it also supports converting from [Starlark](https://github.com/google/starlark-go) with the `.bzl` or `.star` extensions. Unlike the official plugin, you get all the build paramters in the context variable and can use any function name you wish, in the form below.
 ```json
 {
-  "barakmich/rotocopter": "some/other/path.yaml"
+  "barakmich/rotocopter": "some/other/path.yaml",
+  "barakmich/pipeline_from_starlark": "path/to/starlark.star:function_name"
 }
 ```
 
