@@ -24,7 +24,7 @@ func dumpToYaml(jsonBufs []*bytes.Buffer) (*bytes.Buffer, error) {
 	for i, buf := range jsonBufs {
 		io.Copy(out, buf)
 		if i != len(jsonBufs)-1 {
-			out.WriteString("----\n")
+			out.WriteString("\n----\n")
 		}
 	}
 	manifest, err := yaml.Parse(out)

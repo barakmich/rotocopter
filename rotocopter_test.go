@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -62,6 +63,34 @@ func TestStarlarkThatLoads(t *testing.T) {
 	}
 	if !strings.Contains(string(config.Data), "foobar") {
 		t.Fatal("data doesn't contain foobar step")
+	}
+	t.Log(config.Data)
+}
+
+func TestDefault(t *testing.T) {
+	req := config.Request{
+		Repo: drone.Repo{
+			Slug: "barak/unknown_slug",
+		},
+	}
+	config := loadAndRunTestdata(t, &req)
+	if !strings.Contains(string(config.Data), "Whatup") {
+		t.Fatal("data doesn't contain echo command")
+	}
+	t.Log(config.Data)
+}
+
+func TestStarlarkList(t *testing.T) {
+	req := config.Request{
+		Repo: drone.Repo{
+			Slug: "barak/testmultiplepipeline",
+		},
+	}
+
+	config := loadAndRunTestdata(t, &req)
+	fmt.Println(config.Data)
+	if !strings.Contains(string(config.Data), "arch: arm64") {
+		t.Fatal("data doesn't contain additional arm64 pipeline")
 	}
 	t.Log(config.Data)
 }
