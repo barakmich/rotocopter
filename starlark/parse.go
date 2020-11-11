@@ -52,7 +52,8 @@ func makeLoad(wt *git.Worktree) func(thread *starlark.Thread, module string) (st
 			cache[module] = nil
 
 			// Load it.
-			thread := &starlark.Thread{Name: "exec " + module, Load: thread.Load}
+			thread := &starlark.Thread{Name: "exec " + module, Print: thread.Print, Load: thread.Load}
+			logrus.Info("loading module ", module)
 			file, err := wt.Filesystem.Open(module)
 			if err != nil {
 				logrus.Error("can't open module", module)

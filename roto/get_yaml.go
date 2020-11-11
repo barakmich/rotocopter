@@ -30,6 +30,7 @@ func getDroneYaml(val string, wt *git.Worktree, req *config.Request) (*drone.Con
 }
 
 func getDroneYamlFromFile(v string, wt *git.Worktree) (*drone.Config, error) {
+	logrus.Info("getting ", v, " from yaml")
 	yamlFile, err := wt.Filesystem.Open(v)
 	if err != nil {
 		logrus.Error("can't open filename", v)
@@ -37,6 +38,7 @@ func getDroneYamlFromFile(v string, wt *git.Worktree) (*drone.Config, error) {
 	}
 	data, err := ioutil.ReadAll(yamlFile)
 	if err != nil {
+		logrus.Error(err)
 		return nil, err
 	}
 
@@ -50,12 +52,15 @@ func getDroneYamlFromFile(v string, wt *git.Worktree) (*drone.Config, error) {
 }
 
 func getDroneYamlFromStarlark(v string, wt *git.Worktree, req *config.Request) (*drone.Config, error) {
+	logrus.Info("getting ", v, " from starlark")
 	starlarkval, err := starlark.ExecNamedFunc(v, wt, *req, nil)
 	if err != nil {
+		logrus.Error(err)
 		return nil, err
 	}
 	buf, err := starlark.ValToYaml(starlarkval)
 	if err != nil {
+		logrus.Error(err)
 		return nil, err
 	}
 	conf := &drone.Config{

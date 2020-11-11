@@ -94,3 +94,18 @@ func TestStarlarkList(t *testing.T) {
 	}
 	t.Log(config.Data)
 }
+
+func TestStarlarkSubdir(t *testing.T) {
+	req := config.Request{
+		Repo: drone.Repo{
+			Slug: "barak/test_subdir",
+		},
+	}
+
+	config := loadAndRunTestdata(t, &req)
+	fmt.Println(config.Data)
+	if !strings.Contains(string(config.Data), "kind: docker") {
+		t.Fatal("data doesn't contain additional arm64 pipeline")
+	}
+	t.Log(config.Data)
+}

@@ -108,6 +108,7 @@ func (r *rotoPlugin) Find(ctx context.Context, req *config.Request) (*drone.Conf
 		logrus.Error("can't get worktree:", err)
 		return nil, err
 	}
+	logrus.Info("Looking for slug:", req.Repo.Slug)
 	v, ok := r.index[req.Repo.Slug]
 	if !ok {
 		logrus.Info(req.Repo.Slug, " doesn't exist in index, trying default")
