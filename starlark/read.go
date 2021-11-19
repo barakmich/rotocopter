@@ -21,6 +21,46 @@ func splitFuncPath(funcpath string) (string, string, error) {
 	return filename, funcname, nil
 }
 
+func ExecFuncFromFile(basepath, funcpath string, extra map[string]string) (starlark.Value, error) {
+	filename, funcname, err := splitFuncPath(funcpath)
+	if err != nil {
+		return nil, err
+	}
+
+	thread := &starlark.Thread{
+		Name: "rotocopter",
+		Print: func(_ *starlark.Thread, msg string) {
+			logrus.Info(msg)
+		},
+		Load: fileLoad(basepath),
+	}
+
+	globals, err := fileparse(basepath, filename, thread)
+	if err != nil {
+		return nil, err
+	}
+	v, ok := globals[funcname]
+	if !ok {
+		return nil, fmt.Errorf("No function named %s in %s", funcname, filename)
+
+	}
+
+	f, ok := v.(*starlark.Function)
+	if !ok {
+		return nil, fmt.Errorf("%s in %s is not a Function", funcname, filename)
+	}
+
+	dictarg := starlark.NewDict(1)
+	if extra != nil {
+		dictarg.SetKey(starlark.String("config"), buildStringDict(extra))
+	}
+	arg := args(
+		dictarg,
+	)
+
+	return starlark.Call(thread, f, arg, nil)
+}
+
 func ExecNamedFunc(funcpath string, wt *git.Worktree, req config.Request, extras map[string]string) (starlark.Value, error) {
 	filename, funcname, err := splitFuncPath(funcpath)
 	if err != nil {
