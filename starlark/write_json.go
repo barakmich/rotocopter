@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 
-	"github.com/drone/drone-yaml/yaml"
-	"github.com/drone/drone-yaml/yaml/pretty"
 	"go.starlark.net/starlark"
+	realyaml "gopkg.in/yaml.v2"
 )
 
 func ValToYaml(val starlark.Value) (*bytes.Buffer, error) {
@@ -22,17 +20,21 @@ func ValToYaml(val starlark.Value) (*bytes.Buffer, error) {
 func dumpToYaml(jsonBufs []*bytes.Buffer) (*bytes.Buffer, error) {
 	out := bytes.NewBuffer(nil)
 	for i, buf := range jsonBufs {
-		io.Copy(out, buf)
+		dict := make(map[string]interface{})
+		err := realyaml.Unmarshal(buf.Bytes(), &dict)
+		if err != nil {
+			return nil, err
+		}
+		enc := realyaml.NewEncoder(out)
+		err = enc.Encode(dict)
+		if err != nil {
+			return nil, err
+		}
+		enc.Close()
 		if i != len(jsonBufs)-1 {
 			out.WriteString("\n----\n")
 		}
 	}
-	manifest, err := yaml.Parse(out)
-	if err != nil {
-		return nil, err
-	}
-	out.Reset()
-	pretty.Print(out, manifest)
 	return out, nil
 }
 
