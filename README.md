@@ -34,4 +34,4 @@ Inside the configured `GIT_REPO` is a file, `index.json`. It's a simple map from
 }
 ```
 
-And you're done!
+And you're done! Hopefully!
